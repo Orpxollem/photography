@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { supabase, type Series as SeriesType, type SeriesImage } from '../lib/supabase';
 import { ImageGallery } from '../components/ImageGallery';
-import { ChevronLeft } from 'lucide-react';
 
 export function SeriesDetail() {
   const { id } = useParams<{ id: string }>();
@@ -63,34 +62,11 @@ export function SeriesDetail() {
     : series.image_url ? [series.image_url] : [];
 
   return (
-    <div className="min-h-screen bg-black pt-32 pb-32">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Back Button */}
-        <Link
-          to="/series"
-          className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition mb-12"
-        >
-          <ChevronLeft size={20} />
-          Back
-        </Link>
-
-        {/* Gallery */}
-        <div className="mb-12">
-          <ImageGallery
-            images={galleryImages}
-            alt={series.title}
-          />
-        </div>
-
-        {/* Description */}
-        {series.quote && (
-          <div className="max-w-2xl">
-            <p className="text-lg text-gray-300 leading-relaxed">
-              {series.quote}
-            </p>
-          </div>
-        )}
-      </div>
+    <div className="min-h-screen bg-black pt-24 pb-12">
+      <ImageGallery
+        images={galleryImages}
+        alt={series.title}
+      />
     </div>
   );
 }

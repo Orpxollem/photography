@@ -29,5 +29,6 @@ export type Exhibition = {
   location: string | null;
   date: string | null;
   image_url: string | null;
+  exhibition_type: 'solo' | 'group';
   created_at: string;
 };

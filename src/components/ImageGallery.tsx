@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 interface ImageGalleryProps {
   images: string[];
@@ -10,157 +9,171 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
-  const [translateX, setTranslateX] = useState(0);
+  const [dragOffset, setDragOffset] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-    setTranslateX(0);
+  const lastWheelTime = useRef(0);
+
+  const goToSlide = useCallback((index: number) => {
+    const nextIndex = (index % images.length + images.length) % images.length;
+    setCurrentIndex(nextIndex);
+    setDragOffset(0);
+  }, [images.length]);
+
+  const handleNext = useCallback(() => {
+    goToSlide(currentIndex + 1);
+  }, [currentIndex, goToSlide]);
+
+  const handlePrevious = useCallback(() => {
+    goToSlide(currentIndex - 1);
+  }, [currentIndex, goToSlide]);
+
+  const handleWheel = (e: React.WheelEvent) => {
+    // Detect horizontal scroll/swipe
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      const now = Date.now();
+      // Cooldown to prevent multiple triggers from a single swipe gesture
+      if (now - lastWheelTime.current < 700) return;
+
+      if (Math.abs(e.deltaX) > 20) {
+        if (e.deltaX > 0) {
+          handleNext();
+        } else {
+          handlePrevious();
+        }
+        lastWheelTime.current = now;
+      }
+    }
   };
 
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-    setTranslateX(0);
-  };
-
+  // Pure swipe tracking - no click simulation
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     setStartX(e.clientX);
+    setDragOffset(0);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging) return;
-    const diff = e.clientX - startX;
-    setTranslateX(diff);
+    const currentDragOffset = e.clientX - startX;
+    setDragOffset(currentDragOffset);
   };
 
-  const handleMouseUp = (e: React.MouseEvent) => {
+  const handleMouseUp = () => {
     setIsDragging(false);
-    const diff = e.clientX - startX;
-    const threshold = 50;
 
-    if (Math.abs(diff) > threshold) {
-      if (diff > 0) {
-        handlePrevious();
-      } else {
-        handleNext();
-      }
+    // Swipe threshold - only register if moved more than 50px
+    const threshold = 50;
+    if (Math.abs(dragOffset) < threshold) {
+      setDragOffset(0);
+      return;
     }
-    setTranslateX(0);
+
+    if (dragOffset > 0) {
+      // Swiped right - go to previous
+      handlePrevious();
+    } else {
+      // Swiped left - go to next
+      handleNext();
+    }
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setIsDragging(true);
     setStartX(e.touches[0].clientX);
+    setDragOffset(0);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
-    const diff = e.touches[0].clientX - startX;
-    setTranslateX(diff);
+    const currentDragOffset = e.touches[0].clientX - startX;
+    setDragOffset(currentDragOffset);
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
+  const handleTouchEnd = () => {
     setIsDragging(false);
-    const diff = e.changedTouches[0].clientX - startX;
-    const threshold = 50;
 
-    if (Math.abs(diff) > threshold) {
-      if (diff > 0) {
-        handlePrevious();
-      } else {
-        handleNext();
-      }
+    const threshold = 50;
+    if (Math.abs(dragOffset) < threshold) {
+      setDragOffset(0);
+      return;
     }
-    setTranslateX(0);
+
+    if (dragOffset > 0) {
+      handlePrevious();
+    } else {
+      handleNext();
+    }
   };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') handleNext();
+      if (e.key === 'ArrowLeft') handlePrevious();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleNext, handlePrevious]);
 
   if (images.length === 0) {
     return null;
   }
 
   return (
-    <div className="w-full space-y-6">
-      {/* Main Gallery */}
-      <div
-        ref={containerRef}
-        className="relative w-full overflow-hidden bg-black cursor-grab active:cursor-grabbing"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        <div className="relative w-full aspect-square">
-          <div
-            className="w-full h-full flex transition-transform duration-500 ease-out"
-            style={{
-              transform: `translateX(calc(-${currentIndex * 100}% + ${translateX}px))`,
-            }}
-          >
-            {images.map((image, index) => (
-              <div
-                key={index}
-                className="w-full h-full flex-shrink-0"
-              >
-                <img
-                  src={image}
-                  alt={`${alt} - Image ${index + 1}`}
-                  className="w-full h-full object-cover select-none"
-                  draggable={false}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
+    <div
+      ref={containerRef}
+      className="w-full h-[calc(100vh-120px)] flex flex-col items-center justify-center bg-black cursor-grab active:cursor-grabbing select-none"
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onWheel={handleWheel}
+    >
+      <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+        {images.map((image, index) => {
+          const isActive = index === currentIndex;
+          const offset = isActive ? dragOffset : 0;
 
-        {/* Navigation Arrows */}
-        {images.length > 1 && (
-          <>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handlePrevious();
+          // Calculate opacity based on position
+          let opacity = 0;
+          if (isActive) {
+            opacity = 1 - Math.abs(offset) / 500;
+          }
+
+          return (
+            <div
+              key={index}
+              className="absolute inset-0 flex items-center justify-center"
+              style={{
+                opacity: Math.max(opacity, 0),
+                transform: isActive ? `translateX(${offset}px)` : 'translateX(100%)',
+                transition: isDragging ? 'none' : 'all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1)',
+                pointerEvents: isActive ? 'auto' : 'none',
               }}
-              className="absolute left-6 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition text-white"
-              aria-label="Previous image"
             >
-              <ChevronLeft size={24} />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleNext();
-              }}
-              className="absolute right-6 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition text-white"
-              aria-label="Next image"
-            >
-              <ChevronRight size={24} />
-            </button>
-          </>
-        )}
+              <img
+                src={image}
+                alt={`${alt} - Image ${index + 1}`}
+                className="max-h-[85vh] w-auto object-contain"
+                draggable={false}
+                style={{
+                  maxWidth: '420px',
+                  aspectRatio: '3/4',
+                }}
+              />
+            </div>
+          );
+        })}
       </div>
 
-      {/* Indicators */}
+      {/* Counter */}
       {images.length > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          {images.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                setCurrentIndex(index);
-                setTranslateX(0);
-              }}
-              className={`h-2 rounded-full transition ${
-                index === currentIndex
-                  ? 'bg-white w-8'
-                  : 'bg-gray-600 w-2 hover:bg-gray-500'
-              }`}
-              aria-label={`Go to image ${index + 1}`}
-            />
-          ))}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-gray-400 text-sm pointer-events-none">
+          {currentIndex + 1} of {images.length}
         </div>
       )}
     </div>
