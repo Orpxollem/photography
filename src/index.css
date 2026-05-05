@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  @keyframes pulse-horizontal-left {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(-6px); }
+  }
+  @keyframes pulse-horizontal-right {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(6px); }
+  }
+  .animate-pulse-horizontal-left {
+    animation: pulse-horizontal-left 2s ease-in-out infinite;
+  }
+  .animate-pulse-horizontal-right {
+    animation: pulse-horizontal-right 2s ease-in-out infinite;
+  }
+}

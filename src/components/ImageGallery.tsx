@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ImageGalleryProps {
   images: string[];
@@ -10,6 +11,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
+  const [showArrows, setShowArrows] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const lastWheelTime = useRef(0);
@@ -20,13 +22,24 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
     setDragOffset(0);
   }, [images.length]);
 
-  const handleNext = useCallback(() => {
+  const handleNext = useCallback((e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     goToSlide(currentIndex + 1);
   }, [currentIndex, goToSlide]);
 
-  const handlePrevious = useCallback(() => {
+  const handlePrevious = useCallback((e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     goToSlide(currentIndex - 1);
   }, [currentIndex, goToSlide]);
+
+  useEffect(() => {
+    // Show arrows briefly on mount to indicate interactivity
+    if (images.length > 1) {
+      setShowArrows(true);
+      const timer = setTimeout(() => setShowArrows(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [images.length]);
 
   const handleWheel = (e: React.WheelEvent) => {
     // Detect horizontal scroll/swipe
@@ -123,7 +136,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
   return (
     <div
       ref={containerRef}
-      className="w-full h-[calc(100vh-120px)] flex flex-col items-center justify-center bg-black cursor-grab active:cursor-grabbing select-none"
+      className="w-full h-[calc(100vh-120px)] flex flex-col items-center justify-center bg-black cursor-grab active:cursor-grabbing select-none group"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -132,6 +145,8 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       onWheel={handleWheel}
+      onMouseEnter={() => setShowArrows(true)}
+      onMouseLeave={() => setShowArrows(false)}
     >
       <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
         {images.map((image, index) => {
@@ -167,6 +182,28 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
             </div>
           );
         })}
+
+        {/* Animated Arrows */}
+        {images.length > 1 && (
+          <>
+            <button
+              onClick={handlePrevious}
+              onMouseDown={(e) => e.stopPropagation()}
+              className={`absolute left-4 md:left-8 p-3 rounded-full bg-black/20 text-white/50 hover:text-white hover:bg-black/40 transition-all duration-300 pointer-events-auto z-10 ${showArrows ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-8 h-8 animate-pulse-horizontal-left" />
+            </button>
+            <button
+              onClick={handleNext}
+              onMouseDown={(e) => e.stopPropagation()}
+              className={`absolute right-4 md:right-8 p-3 rounded-full bg-black/20 text-white/50 hover:text-white hover:bg-black/40 transition-all duration-300 pointer-events-auto z-10 ${showArrows ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-8 h-8 animate-pulse-horizontal-right" />
+            </button>
+          </>
+        )}
       </div>
 
       {/* Counter */}
@@ -178,3 +215,4 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
     </div>
   );
 }
+

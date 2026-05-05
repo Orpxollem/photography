@@ -61,7 +61,7 @@ export function Home() {
 
         <div className="sticky top-0 h-screen flex items-center justify-center pointer-events-none">
           <div
-            className="max-w-4xl px-8 text-center"
+            className="max-w-[94%] px-4 text-center"
             style={{ opacity: quoteOpacity }}
           >
             <p className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight">
