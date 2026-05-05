@@ -147,7 +147,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
           return (
             <div
               key={index}
-              className="absolute inset-0 flex items-center justify-center"
+              className="absolute inset-0 flex items-center justify-center p-6 md:p-12"
               style={{
                 opacity: Math.max(opacity, 0),
                 transform: isActive ? `translateX(${offset}px)` : 'translateX(100%)',
@@ -158,11 +158,10 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
               <img
                 src={image}
                 alt={`${alt} - Image ${index + 1}`}
-                className="max-h-[85vh] w-auto object-contain"
+                className="max-h-[80vh] w-auto object-contain shadow-2xl"
                 draggable={false}
                 style={{
-                  maxWidth: '420px',
-                  aspectRatio: '3/4',
+                  maxWidth: '70vw',
                 }}
               />
             </div>

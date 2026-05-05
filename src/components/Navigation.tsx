@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import * as neonApi from '../lib/neonApi';
 
 export function Navigation() {
   const location = useLocation();
@@ -15,12 +15,13 @@ export function Navigation() {
       if (location.pathname.startsWith('/series/')) {
         const seriesId = location.pathname.split('/series/')[1];
         if (seriesId) {
-          const { data } = await supabase
-            .from('series')
-            .select('title')
-            .eq('id', seriesId)
-            .maybeSingle();
-          setSeriesTitle(data?.title || null);
+          try {
+            const data = await neonApi.getSeriesById(seriesId);
+            setSeriesTitle(data && data.length > 0 ? data[0].title : null);
+          } catch (err) {
+            console.error('Error fetching series title:', err);
+            setSeriesTitle(null);
+          }
         }
       } else {
         setSeriesTitle(null);
