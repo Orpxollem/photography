@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, X, Loader2, Save } from 'lucide-react';
 import * as neonApi from '../../lib/neonApi';
 import type { Exhibition } from '../../lib/supabase';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 
 interface ExhibitionForm {
   title: string;
@@ -27,6 +28,7 @@ export function AdminExhibitions() {
   const [form, setForm] = useState<ExhibitionForm>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const fetchExhibitions = async () => {
     try {
@@ -99,14 +101,22 @@ export function AdminExhibitions() {
     setSaving(false);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this exhibition?')) return;
+  const handleDelete = (id: string) => {
+    setDeleteId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    setSaving(true);
     try {
-      await neonApi.deleteExhibition(id);
-      setExhibitions((prev) => prev.filter((e) => e.id !== id));
-      if (editingId === id) handleCancel();
+      await neonApi.deleteExhibition(deleteId);
+      setExhibitions((prev) => prev.filter((e) => e.id !== deleteId));
+      if (editingId === deleteId) handleCancel();
+      setDeleteId(null);
     } catch (error) {
       console.error('Error deleting:', error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -259,6 +269,15 @@ export function AdminExhibitions() {
           <p className="text-gray-500 text-sm py-8 text-center">No exhibitions yet.</p>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={deleteId !== null}
+        onClose={() => setDeleteId(null)}
+        onConfirm={confirmDelete}
+        loading={saving}
+        title="Delete Exhibition"
+        message="Are you sure you want to delete this exhibition? This action cannot be undone."
+      />
     </div>
   );
 }

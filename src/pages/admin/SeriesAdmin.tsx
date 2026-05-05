@@ -4,6 +4,7 @@ import * as neonApi from '../../lib/neonApi';
 import type { Series as SeriesType, SeriesImage } from '../../lib/supabase';
 import { ImageUpload } from '../../components/ImageUpload';
 import { uploadImage } from '../../lib/supabase';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 
 interface SeriesForm {
   title: string;
@@ -31,6 +32,9 @@ export function AdminSeries() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [newImageUrl, setNewImageUrl] = useState<Record<string, string>>({});
   const [addingImage, setAddingImage] = useState<string | null>(null);
+  
+  // Delete confirmation state
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; type: 'series' | 'image' } | null>(null);
 
   const fetchAll = async () => {
     try {
@@ -106,14 +110,31 @@ export function AdminSeries() {
     setSaving(false);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this series and all its images?')) return;
+  const handleDelete = (id: string) => {
+    setDeleteConfirm({ id, type: 'series' });
+  };
+
+  const handleDeleteImage = (imageId: string) => {
+    setDeleteConfirm({ id: imageId, type: 'image' });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm) return;
+    setSaving(true);
     try {
-      await neonApi.deleteSeries(id);
-      setSeriesList((prev) => prev.filter((s) => s.id !== id));
-      if (editingId === id) handleCancel();
+      if (deleteConfirm.type === 'series') {
+        await neonApi.deleteSeries(deleteConfirm.id);
+        setSeriesList((prev) => prev.filter((s) => s.id !== deleteConfirm.id));
+        if (editingId === deleteConfirm.id) handleCancel();
+      } else {
+        await neonApi.deleteSeriesImage(deleteConfirm.id);
+        fetchAll();
+      }
+      setDeleteConfirm(null);
     } catch (error) {
       console.error('Error deleting:', error);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -158,15 +179,6 @@ export function AdminSeries() {
       alert('Failed to upload image.');
     } finally {
       setAddingImage(null);
-    }
-  };
-
-  const handleDeleteImage = async (imageId: string) => {
-    try {
-      await neonApi.deleteSeriesImage(imageId);
-      fetchAll();
-    } catch (error) {
-      console.error('Error deleting image:', error);
     }
   };
 
@@ -417,6 +429,19 @@ export function AdminSeries() {
           <p className="text-gray-500 text-sm py-8 text-center">No series yet.</p>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={deleteConfirm !== null}
+        onClose={() => setDeleteConfirm(null)}
+        onConfirm={confirmDelete}
+        loading={saving}
+        title={deleteConfirm?.type === 'series' ? 'Delete Series' : 'Delete Image'}
+        message={
+          deleteConfirm?.type === 'series'
+            ? 'Are you sure you want to delete this series? This will also remove all images within it. This action cannot be undone.'
+            : 'Are you sure you want to remove this image from the gallery?'
+        }
+      />
     </div>
   );
 }

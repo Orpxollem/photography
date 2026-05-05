@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { type Exhibition } from '../lib/supabase';
 import * as neonApi from '../lib/neonApi';
+import { MapPin, Calendar } from 'lucide-react';
 
 export function Exhibitions() {
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
@@ -41,22 +42,28 @@ export function Exhibitions() {
               {exhibition.title}
             </h3>
             {exhibition.description && (
-              <p className="text-gray-400 text-sm leading-relaxed mb-3">
+              <p className="text-gray-400 text-sm leading-relaxed mb-4">
                 {exhibition.description}
               </p>
             )}
-            <div className="space-y-1 text-gray-500 text-sm">
+            <div className="space-y-2 text-gray-500 text-sm">
               {exhibition.location && (
-                <p>{exhibition.location}</p>
+                <div className="flex items-center gap-2">
+                  <MapPin size={14} className="text-gray-600" />
+                  <p>{exhibition.location}</p>
+                </div>
               )}
               {exhibition.date && (
-                <p>
-                  {new Date(exhibition.date).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </p>
+                <div className="flex items-center gap-2">
+                  <Calendar size={14} className="text-gray-600" />
+                  <p>
+                    {new Date(exhibition.date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </p>
+                </div>
               )}
             </div>
           </div>
