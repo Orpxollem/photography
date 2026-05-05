@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Save, Loader2 } from 'lucide-react';
 import * as neonApi from '../../lib/neonApi';
+import { ImageUpload } from '../../components/ImageUpload';
 
 export function AdminAboutSettings() {
   const [image, setImage] = useState('');
@@ -52,29 +53,12 @@ export function AdminAboutSettings() {
     <div>
       <h2 className="text-2xl font-light text-white mb-8">About Page</h2>
 
-      <div className="space-y-6">
-        <div>
-          <label className="block text-sm text-gray-400 mb-2">Portrait Image URL</label>
-          <input
-            type="url"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-neutral-500 transition"
-            placeholder="https://images.pexels.com/..."
-          />
-          {image && (
-            <div className="mt-3">
-              <img
-                src={image}
-                alt="Preview"
-                className="w-32 h-32 object-cover rounded-lg border border-neutral-700"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            </div>
-          )}
-        </div>
+      <div className="space-y-8 max-w-2xl">
+        <ImageUpload
+          label="Portrait Image"
+          value={image}
+          onChange={setImage}
+        />
 
         <div>
           <label className="block text-sm text-gray-400 mb-2">Biography</label>
@@ -105,3 +89,4 @@ export function AdminAboutSettings() {
     </div>
   );
 }
+

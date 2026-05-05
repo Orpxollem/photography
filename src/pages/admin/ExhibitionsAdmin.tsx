@@ -8,7 +8,6 @@ interface ExhibitionForm {
   description: string;
   location: string;
   date: string;
-  image_url: string;
   exhibition_type: 'solo' | 'group';
 }
 
@@ -17,7 +16,6 @@ const emptyForm: ExhibitionForm = {
   description: '',
   location: '',
   date: '',
-  image_url: '',
   exhibition_type: 'solo',
 };
 
@@ -50,7 +48,6 @@ export function AdminExhibitions() {
       description: exhibition.description || '',
       location: exhibition.location || '',
       date: exhibition.date || '',
-      image_url: exhibition.image_url || '',
       exhibition_type: exhibition.exhibition_type,
     });
   };
@@ -78,7 +75,6 @@ export function AdminExhibitions() {
           description: form.description || undefined,
           location: form.location || undefined,
           date: form.date || undefined,
-          image_url: form.image_url || undefined,
           exhibition_type: form.exhibition_type,
         });
         setMessage({ type: 'success', text: 'Exhibition created.' });
@@ -90,7 +86,6 @@ export function AdminExhibitions() {
           description: form.description || undefined,
           location: form.location || undefined,
           date: form.date || undefined,
-          image_url: form.image_url || undefined,
           exhibition_type: form.exhibition_type,
         });
         setMessage({ type: 'success', text: 'Exhibition updated.' });
@@ -206,15 +201,6 @@ export function AdminExhibitions() {
                   className="w-full px-4 py-2.5 bg-neutral-800 border border-neutral-600 rounded-lg text-white focus:outline-none focus:border-neutral-500 transition"
                 />
               </div>
-            </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Image URL</label>
-              <input
-                type="url"
-                value={form.image_url}
-                onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                className="w-full px-4 py-2.5 bg-neutral-800 border border-neutral-600 rounded-lg text-white focus:outline-none focus:border-neutral-500 transition"
-              />
             </div>
             <div className="flex justify-end pt-2">
               <button

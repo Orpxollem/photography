@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Save, Loader2 } from 'lucide-react';
 import * as neonApi from '../../lib/neonApi';
+import { ImageUpload } from '../../components/ImageUpload';
 
 export function AdminHomeSettings() {
   const [quote, setQuote] = useState('');
@@ -52,7 +53,7 @@ export function AdminHomeSettings() {
     <div>
       <h2 className="text-2xl font-light text-white mb-8">Home Page</h2>
 
-      <div className="space-y-6">
+      <div className="space-y-8 max-w-2xl">
         <div>
           <label className="block text-sm text-gray-400 mb-2">Hero Quote</label>
           <textarea
@@ -64,28 +65,11 @@ export function AdminHomeSettings() {
           />
         </div>
 
-        <div>
-          <label className="block text-sm text-gray-400 mb-2">Hero Image URL</label>
-          <input
-            type="url"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-neutral-500 transition"
-            placeholder="https://images.pexels.com/..."
-          />
-          {imageUrl && (
-            <div className="mt-3">
-              <img
-                src={imageUrl}
-                alt="Preview"
-                className="w-48 h-32 object-cover rounded-lg border border-neutral-700"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            </div>
-          )}
-        </div>
+        <ImageUpload
+          label="Hero Image"
+          value={imageUrl}
+          onChange={setImageUrl}
+        />
 
         {message && (
           <p className={`text-sm ${message.type === 'success' ? 'text-emerald-400' : 'text-red-400'}`}>
@@ -105,3 +89,4 @@ export function AdminHomeSettings() {
     </div>
   );
 }
+

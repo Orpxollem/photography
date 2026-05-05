@@ -1,3 +1,5 @@
+import { supabase } from './supabase';
+
 const EDGE_FUNCTION_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/neon-api`;
 
 interface QueryOptions {
@@ -6,17 +8,21 @@ interface QueryOptions {
 }
 
 export async function callNeonApi(options: QueryOptions) {
+  const { data: { session } } = await supabase.auth.getSession();
+  
   const response = await fetch(EDGE_FUNCTION_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+      'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+      'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
     },
     body: JSON.stringify(options),
   });
 
   if (!response.ok) {
-    throw new Error(`API error: ${response.statusText}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `API error: ${response.statusText}`);
   }
 
   return response.json();
