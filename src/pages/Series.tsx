@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase, type Series as SeriesType } from '../lib/supabase';
+import { type Series as SeriesType } from '../lib/supabase';
+import * as neonApi from '../lib/neonApi';
 
 export function Series() {
   const [series, setSeries] = useState<SeriesType[]>([]);
@@ -10,12 +11,7 @@ export function Series() {
   useEffect(() => {
     const fetchSeries = async () => {
       try {
-        const { data, error } = await supabase
-          .from('series')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) throw error;
+        const data = await neonApi.getSeries();
         setSeries(data || []);
       } catch (err) {
         console.error('Error fetching series:', err);

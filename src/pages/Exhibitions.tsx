@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { supabase, type Exhibition } from '../lib/supabase';
+import { type Exhibition } from '../lib/supabase';
+import * as neonApi from '../lib/neonApi';
 
 export function Exhibitions() {
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
@@ -8,12 +9,7 @@ export function Exhibitions() {
   useEffect(() => {
     const fetchExhibitions = async () => {
       try {
-        const { data, error } = await supabase
-          .from('exhibitions')
-          .select('*')
-          .order('date', { ascending: false });
-
-        if (error) throw error;
+        const data = await neonApi.getExhibitions();
         setExhibitions(data || []);
       } catch (err) {
         console.error('Error fetching exhibitions:', err);

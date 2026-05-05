@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { supabase, type Series as SeriesType, type SeriesImage } from '../lib/supabase';
+import { type Series as SeriesType, type SeriesImage } from '../lib/supabase';
 import { ImageGallery } from '../components/ImageGallery';
+import * as neonApi from '../lib/neonApi';
 
 export function SeriesDetail() {
   const { id } = useParams<{ id: string }>();
@@ -14,22 +15,10 @@ export function SeriesDetail() {
       if (!id) return;
 
       try {
-        const { data: seriesData, error: seriesError } = await supabase
-          .from('series')
-          .select('*')
-          .eq('id', id)
-          .maybeSingle();
+        const seriesData = await neonApi.getSeriesById(id);
+        setSeries(seriesData && seriesData.length > 0 ? seriesData[0] : null);
 
-        if (seriesError) throw seriesError;
-        setSeries(seriesData);
-
-        const { data: imagesData, error: imagesError } = await supabase
-          .from('series_images')
-          .select('*')
-          .eq('series_id', id)
-          .order('order', { ascending: true });
-
-        if (imagesError) throw imagesError;
+        const imagesData = await neonApi.getSeriesImages(id);
         setImages(imagesData || []);
       } catch (err) {
         console.error('Error fetching series detail:', err);

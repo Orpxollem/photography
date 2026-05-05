@@ -2,6 +2,9 @@ import { Link, useLocation } from 'react-router-dom';
 
 export function Footer() {
   const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/securez-admin-logzinz');
+
+  if (isAdmin) return null;
 
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-40 bg-black/95 border-t border-gray-800">

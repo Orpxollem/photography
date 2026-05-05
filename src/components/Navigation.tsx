@@ -5,7 +5,10 @@ import { supabase } from '../lib/supabase';
 export function Navigation() {
   const location = useLocation();
   const isHome = location.pathname === '/';
+  const isAdmin = location.pathname.startsWith('/securez-admin-logzinz');
   const [seriesTitle, setSeriesTitle] = useState<string | null>(null);
+
+  if (isAdmin) return null;
 
   useEffect(() => {
     const fetchSeriesTitle = async () => {
