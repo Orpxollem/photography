@@ -1,0 +1,17 @@
+name: Keep Site Active
+
+on:
+  schedule:
+    # Runs every 10 minutes
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Site
+        run: |
+          # Replace the URL below with your actual Render URL
+          # Or set it as a secret: ${{ secrets.SITE_URL }}
+          curl -I "https://photography-5e3l.onrender.com"
