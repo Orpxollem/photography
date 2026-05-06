@@ -75,12 +75,12 @@ export function Exhibitions() {
   );
 
   return (
-    <div className="min-h-screen bg-black pt-32 pb-32">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
+    <div className="min-h-screen bg-black pt-32 pb-32 max-sm:pt-24">
+      <div className="max-w-7xl mx-auto px-6 max-sm:px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 max-sm:gap-10">
           {/* Solo Exhibitions */}
           <div>
-            <h2 className="text-3xl md:text-4xl font-light text-white mb-12">
+            <h2 className="text-3xl md:text-4xl font-light text-white mb-12 max-sm:text-2xl max-sm:mb-8">
               Solo Exhibitions
             </h2>
             {renderExhibitionList(soloExhibitions)}
@@ -88,7 +88,7 @@ export function Exhibitions() {
 
           {/* Group Exhibitions */}
           <div>
-            <h2 className="text-3xl md:text-4xl font-light text-white mb-12">
+            <h2 className="text-3xl md:text-4xl font-light text-white mb-12 max-sm:text-2xl max-sm:mb-8">
               Group Exhibitions
             </h2>
             {renderExhibitionList(groupExhibitions)}

@@ -153,15 +153,15 @@ export function AdminExhibitions() {
 
       {/* Edit/Create Form */}
       {isEditing && (
-        <div className="bg-neutral-900 border border-neutral-700 rounded-lg p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
+        <div className="bg-neutral-900 border border-neutral-700 rounded-lg p-6 mb-8 max-sm:p-4 max-sm:mb-6">
+          <div className="flex items-center justify-between mb-6 max-sm:mb-4">
             <h3 className="text-lg text-white">{isCreating ? 'New Exhibition' : 'Edit Exhibition'}</h3>
             <button onClick={handleCancel} className="text-gray-400 hover:text-white transition">
               <X size={20} />
             </button>
           </div>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
               <div>
                 <label className="block text-sm text-gray-400 mb-1.5">Title</label>
                 <input
@@ -192,7 +192,7 @@ export function AdminExhibitions() {
                 className="w-full px-4 py-2.5 bg-neutral-800 border border-neutral-600 rounded-lg text-white focus:outline-none focus:border-neutral-500 transition resize-none"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
               <div>
                 <label className="block text-sm text-gray-400 mb-1.5">Location</label>
                 <input

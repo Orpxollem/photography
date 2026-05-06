@@ -32,20 +32,20 @@ export function Series() {
   }
 
   return (
-    <div className="min-h-screen bg-black pt-32 pb-32">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="space-y-16">
+    <div className="min-h-screen bg-black pt-32 pb-32 max-sm:pt-24">
+      <div className="max-w-7xl mx-auto px-6 max-sm:px-4">
+        <div className="space-y-16 max-sm:space-y-10">
           {series.map((s) => (
             <div
               key={s.id}
-              className="grid grid-cols-1 md:grid-cols-[1fr_auto_1.5fr] gap-8 md:gap-12 items-center border-b border-white/5 pb-12 last:border-0"
+              className="grid grid-cols-1 md:grid-cols-[1fr_auto_1.5fr] gap-8 md:gap-12 items-center border-b border-white/5 pb-12 last:border-0 max-sm:gap-4 max-sm:pb-8"
               onMouseEnter={() => setHoveredId(s.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
               {/* Title - Left Side */}
               <div className="min-w-0">
                 <Link to={`/series/${s.id}`}>
-                  <h2 className="text-4xl md:text-5xl font-light text-white leading-tight hover:text-gray-300 transition line-clamp-2">
+                  <h2 className="text-4xl md:text-5xl font-light text-white leading-tight hover:text-gray-300 transition line-clamp-2 max-sm:text-3xl">
                     {s.title}
                   </h2>
                 </Link>
@@ -55,8 +55,8 @@ export function Series() {
               <div className="hidden md:block w-px h-12 bg-white/10" />
 
               {/* Description - Right Side - Only visible on hover, strictly 2 lines */}
-              <div className="flex items-center justify-start h-full min-w-0">
-                <div 
+              <div className="hidden md:flex items-center justify-start h-full min-w-0">
+                <div
                   className={`transition-all duration-500 ease-in-out ${
                     hoveredId === s.id ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 pointer-events-none'
                   }`}
@@ -68,6 +68,16 @@ export function Series() {
                     {s.quote || s.description}
                   </Link>
                 </div>
+              </div>
+
+              {/* Mobile: always show description below title */}
+              <div className="md:hidden">
+                <Link
+                  to={`/series/${s.id}`}
+                  className="text-base text-gray-400 leading-relaxed hover:text-white transition line-clamp-2"
+                >
+                  {s.quote || s.description}
+                </Link>
               </div>
             </div>
           ))}

@@ -234,14 +234,14 @@ export function AdminSeries() {
 
       {/* Edit/Create Form */}
       {isEditing && (
-        <div className="bg-neutral-900 border border-neutral-700 rounded-lg p-6 mb-8">
-          <div className="flex items-center justify-between mb-6">
+        <div className="bg-neutral-900 border border-neutral-700 rounded-lg p-6 mb-8 max-sm:p-4 max-sm:mb-6">
+          <div className="flex items-center justify-between mb-6 max-sm:mb-4">
             <h3 className="text-lg text-white">{isCreating ? 'New Series' : 'Edit Series'}</h3>
             <button onClick={handleCancel} className="text-gray-400 hover:text-white transition">
               <X size={20} />
             </button>
           </div>
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-8 max-sm:gap-6">
             <div className="space-y-4">
               <div>
                 <label className="block text-sm text-gray-400 mb-1.5">Title</label>
@@ -341,15 +341,15 @@ export function AdminSeries() {
 
               {/* Expanded: Image management */}
               {isExpanded && (
-                <div className="border-t border-neutral-800 p-4">
-                  <div className="flex items-center justify-between mb-4">
+                <div className="border-t border-neutral-800 p-4 max-sm:p-3">
+                  <div className="flex items-center justify-between mb-4 gap-2">
                     <h4 className="text-sm text-gray-400">Gallery Images ({images.length}/20)</h4>
-                    <label className={`flex items-center gap-2 px-3 py-1.5 bg-neutral-800 text-white text-xs rounded-lg cursor-pointer hover:bg-neutral-700 transition ${images.length >= 20 ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <label className={`flex items-center gap-2 px-3 py-1.5 bg-neutral-800 text-white text-xs rounded-lg cursor-pointer hover:bg-neutral-700 transition whitespace-nowrap ${images.length >= 20 ? 'opacity-50 pointer-events-none' : ''}`}>
                       <Upload size={14} />
-                      Upload File
-                      <input 
-                        type="file" 
-                        className="hidden" 
+                      Upload
+                      <input
+                        type="file"
+                        className="hidden"
                         accept="image/*"
                         onChange={(e) => handleFileUpload(series.id, e)}
                         disabled={addingImage === series.id}
@@ -358,7 +358,7 @@ export function AdminSeries() {
                   </div>
 
                   {/* Add image input (manual URL) */}
-                  <div className="flex gap-2 mb-4">
+                  <div className="flex flex-col sm:flex-row gap-2 mb-4">
                     <input
                       type="url"
                       value={newImageUrl[series.id] || ''}
@@ -369,7 +369,7 @@ export function AdminSeries() {
                     <button
                       onClick={() => handleAddImage(series.id)}
                       disabled={addingImage === series.id || !(newImageUrl[series.id]?.trim()) || images.length >= 20}
-                      className="flex items-center gap-1.5 px-4 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-gray-200 transition disabled:opacity-50"
+                      className="flex items-center justify-center gap-1.5 px-4 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-gray-200 transition disabled:opacity-50 whitespace-nowrap"
                     >
                       {addingImage === series.id ? <Loader2 size={14} className="animate-spin" /> : <ImagePlus size={14} />}
                       Add
@@ -377,7 +377,7 @@ export function AdminSeries() {
                   </div>
 
                   {/* Image list */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-sm:gap-2">
                     {images.map((img, idx) => (
                       <div key={img.id} className="relative group aspect-square bg-neutral-800 rounded-lg overflow-hidden border border-neutral-700">
                         <img
@@ -388,7 +388,7 @@ export function AdminSeries() {
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
                         />
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-2">
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 focus-within:opacity-100 active:opacity-100 transition flex flex-col items-center justify-center gap-2 sm:opacity-0 sm:group-hover:opacity-100">
                           <div className="flex items-center gap-1">
                             <button
                               onClick={() => handleReorderImage(img.id, series.id, 'up')}

@@ -136,17 +136,16 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
   return (
     <div
       ref={containerRef}
-      className="w-full h-[calc(100vh-120px)] flex flex-col items-center justify-center bg-black cursor-grab active:cursor-grabbing select-none group"
+      className="w-full h-[calc(100vh-120px)] max-sm:h-[calc(100vh-100px)] flex flex-col items-center justify-center bg-black cursor-grab active:cursor-grabbing select-none group"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       onWheel={handleWheel}
       onMouseEnter={() => setShowArrows(true)}
-      onMouseLeave={() => setShowArrows(false)}
+      onMouseLeave={() => { handleMouseUp(); setShowArrows(false); }}
     >
       <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
         {images.map((image, index) => {
@@ -162,7 +161,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
           return (
             <div
               key={index}
-              className="absolute inset-0 flex items-center justify-center p-6 md:p-12"
+              className="absolute inset-0 flex items-center justify-center p-6 max-sm:p-3"
               style={{
                 opacity: Math.max(opacity, 0),
                 transform: isActive ? `translateX(${offset}px)` : 'translateX(100%)',
@@ -173,11 +172,8 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
               <img
                 src={image}
                 alt={`${alt} - Image ${index + 1}`}
-                className="max-h-[80vh] w-auto object-contain shadow-2xl"
+                className="max-h-[80vh] w-auto object-contain shadow-2xl max-w-[70vw] max-sm:max-w-[90vw]"
                 draggable={false}
-                style={{
-                  maxWidth: '70vw',
-                }}
               />
             </div>
           );
@@ -189,18 +185,18 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
             <button
               onClick={handlePrevious}
               onMouseDown={(e) => e.stopPropagation()}
-              className={`absolute left-4 md:left-8 p-3 rounded-full bg-black/20 text-white/50 hover:text-white hover:bg-black/40 transition-all duration-300 pointer-events-auto z-10 ${showArrows ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}
+              className={`absolute left-4 p-3 rounded-full bg-black/20 text-white/50 hover:text-white hover:bg-black/40 transition-all duration-300 pointer-events-auto z-10 max-sm:left-2 max-sm:p-2 ${showArrows ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}
               aria-label="Previous image"
             >
-              <ChevronLeft className="w-8 h-8 animate-pulse-horizontal-left" />
+              <ChevronLeft className="w-8 h-8 max-sm:w-6 max-sm:h-6 animate-pulse-horizontal-left" />
             </button>
             <button
               onClick={handleNext}
               onMouseDown={(e) => e.stopPropagation()}
-              className={`absolute right-4 md:right-8 p-3 rounded-full bg-black/20 text-white/50 hover:text-white hover:bg-black/40 transition-all duration-300 pointer-events-auto z-10 ${showArrows ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}
+              className={`absolute right-4 p-3 rounded-full bg-black/20 text-white/50 hover:text-white hover:bg-black/40 transition-all duration-300 pointer-events-auto z-10 max-sm:right-2 max-sm:p-2 ${showArrows ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}
               aria-label="Next image"
             >
-              <ChevronRight className="w-8 h-8 animate-pulse-horizontal-right" />
+              <ChevronRight className="w-8 h-8 max-sm:w-6 max-sm:h-6 animate-pulse-horizontal-right" />
             </button>
           </>
         )}
@@ -208,7 +204,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
 
       {/* Counter */}
       {images.length > 1 && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-gray-400 text-sm pointer-events-none">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-gray-400 text-sm max-sm:bottom-4 max-sm:text-xs pointer-events-none">
           {currentIndex + 1} of {images.length}
         </div>
       )}

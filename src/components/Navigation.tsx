@@ -48,22 +48,22 @@ export function Navigation() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/95 border-b border-gray-800">
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-6 py-6 max-sm:px-4 max-sm:py-4">
         {isHome ? (
           <div className="flex items-center justify-center">
-            <h1 className="text-2xl font-light tracking-wide text-white">
+            <h1 className="text-2xl font-light tracking-wide text-white max-sm:text-xl">
               Joel Gyamera
             </h1>
           </div>
         ) : (
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <Link
               to="/"
-              className="text-xl font-light tracking-wide text-white hover:text-gray-300 transition"
+              className="text-xl font-light tracking-wide text-white hover:text-gray-300 transition truncate max-sm:text-lg"
             >
               Joel Gyamera
             </Link>
-            <h2 className="text-xl font-light tracking-wide text-white">
+            <h2 className="text-xl font-light tracking-wide text-white truncate text-right max-sm:text-lg">
               {getPageTitle()}
             </h2>
           </div>

@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../lib/adminAuth';
-import { LogOut, Home, User, Image, LayoutGrid } from 'lucide-react';
+import { LogOut, Home, User, Image, LayoutGrid, Menu, X } from 'lucide-react';
 
 const navItems = [
   { to: '', label: 'Home Page', icon: Home },
@@ -12,6 +13,7 @@ const navItems = [
 export function AdminLayout() {
   const { logout } = useAdminAuth();
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -19,9 +21,32 @@ export function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 flex">
+    <div className="min-h-screen bg-neutral-950 flex flex-col md:flex-row">
+      {/* Mobile header */}
+      <div className="md:hidden flex items-center justify-between p-4 border-b border-neutral-800">
+        <h1 className="text-lg font-light text-white tracking-wide">Admin Panel</h1>
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="p-2 text-gray-400 hover:text-white transition"
+        >
+          {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      {/* Sidebar overlay on mobile */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 border-r border-neutral-800 flex flex-col">
+      <aside
+        className={`fixed md:static inset-y-0 left-0 z-50 w-64 border-r border-neutral-800 flex flex-col bg-neutral-950 transform transition-transform duration-200 md:transform-none ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
+      >
         <div className="p-6 border-b border-neutral-800">
           <h1 className="text-lg font-light text-white tracking-wide">Admin Panel</h1>
           <p className="text-xs text-gray-500 mt-1">Joel Gyamera Portfolio</p>
@@ -32,6 +57,7 @@ export function AdminLayout() {
               key={to || 'home'}
               to={to || '.'}
               end={to === ''}
+              onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition ${
                   isActive
@@ -58,7 +84,7 @@ export function AdminLayout() {
 
       {/* Main content */}
       <main className="flex-1 overflow-auto">
-        <div className="max-w-4xl mx-auto p-8">
+        <div className="max-w-4xl mx-auto p-8 max-sm:p-4">
           <Outlet />
         </div>
       </main>

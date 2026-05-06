@@ -39,7 +39,7 @@ export function Home() {
 
   return (
     <div className="min-h-screen bg-black">
-      <div className="relative h-[220vh]">
+      <div className="relative h-[220vh] max-sm:h-[180vh]">
         <div className="sticky top-0 h-screen w-full overflow-hidden">
           <img
             src={imageSrc}
@@ -64,7 +64,7 @@ export function Home() {
             className="max-w-[94%] px-4 text-center"
             style={{ opacity: quoteOpacity }}
           >
-            <p className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight">
+            <p className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight max-sm:text-2xl">
               "{displayQuote}"
             </p>
           </div>

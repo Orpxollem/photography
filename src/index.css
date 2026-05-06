@@ -17,4 +17,28 @@
   .animate-pulse-horizontal-right {
     animation: pulse-horizontal-right 2s ease-in-out infinite;
   }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes zoom-in {
+    from { transform: scale(0.95); }
+    to { transform: scale(1); }
+  }
+  .animate-in {
+    animation: fade-in 0.2s ease-out, zoom-in 0.2s ease-out;
+  }
+}
+
+/* Prevent iOS bounce scroll on fixed elements */
+body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Safe area for notched phones */
+@supports (padding: env(safe-area-inset-bottom)) {
+  footer, .fixed.bottom-0 {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }

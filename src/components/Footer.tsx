@@ -8,7 +8,7 @@ export function Footer() {
 
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-40 bg-black/95 border-t border-gray-800">
-      <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between text-lg">
+      <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between text-lg max-sm:px-4 max-sm:py-4 max-sm:text-base">
         <Link
           to="/about"
           className={`transition ${
