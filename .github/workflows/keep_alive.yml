@@ -2,16 +2,48 @@ name: Keep Site Active
 
 on:
   schedule:
-    # Runs every 10 minutes
-    - cron: '*/10 * * * *'
-  workflow_dispatch: # Allows manual triggering
+    # Every 5 minutes — gives enough margin for Render's 15-min spin-down
+    # Note: GitHub Actions cron can lag by a few minutes, so 5-min interval
+    # is safer than 10-min for a 15-min inactivity timeout.
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Allow manual trigger from GitHub Actions UI
 
 jobs:
   ping:
+    name: Ping Render site
     runs-on: ubuntu-latest
+    timeout-minutes: 2
+
     steps:
-      - name: Ping Site
+      - name: Ping site (GET request)
         run: |
-          # Replace the URL below with your actual Render URL
-          # Or set it as a secret: ${{ secrets.SITE_URL }}
-          curl -I "https://photography-5e3l.onrender.com"
+          URL="${{ secrets.RENDER_SITE_URL }}"
+
+          # Fallback to hardcoded URL if secret is not set
+          if [ -z "$URL" ]; then
+            URL="https://photography-5e3l.onrender.com"
+          fi
+
+          echo "Pinging $URL ..."
+
+          # -L  : follow redirects
+          # -s  : silent (no progress bar)
+          # -o /dev/null : discard body
+          # -w  : print HTTP status code
+          # --max-time 60 : wait up to 60s for a cold-start response
+          # --retry 3 --retry-delay 10 : retry on transient failures
+          STATUS=$(curl -L -s -o /dev/null -w "%{http_code}" \
+            --max-time 60 \
+            --retry 3 \
+            --retry-delay 10 \
+            --retry-all-errors \
+            "$URL")
+
+          echo "HTTP status: $STATUS"
+
+          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+            echo "Site is up."
+          else
+            echo "Warning: received unexpected status $STATUS"
+            # Don't fail the workflow — Render may be deploying or briefly unavailable
+          fi

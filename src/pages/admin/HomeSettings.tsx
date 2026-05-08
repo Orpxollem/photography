@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Save, Loader2 } from 'lucide-react';
 import * as neonApi from '../../lib/neonApi';
 import { ImageUpload } from '../../components/ImageUpload';
+import { RichTextEditor } from '../../components/RichTextEditor';
 
 export function AdminHomeSettings() {
   const [quote, setQuote] = useState('');
@@ -54,16 +55,13 @@ export function AdminHomeSettings() {
       <h2 className="text-2xl font-light text-white mb-8">Home Page</h2>
 
       <div className="space-y-8 max-w-2xl">
-        <div>
-          <label className="block text-sm text-gray-400 mb-2">Hero Quote</label>
-          <textarea
-            value={quote}
-            onChange={(e) => setQuote(e.target.value)}
-            rows={4}
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-neutral-500 transition resize-none"
-            placeholder="Enter the quote displayed on the home page"
-          />
-        </div>
+        <RichTextEditor
+          label="Hero Quote"
+          value={quote}
+          onChange={setQuote}
+          placeholder="Enter the quote displayed on the home page"
+          minHeight="100px"
+        />
 
         <ImageUpload
           label="Hero Image"
@@ -89,4 +87,3 @@ export function AdminHomeSettings() {
     </div>
   );
 }
-

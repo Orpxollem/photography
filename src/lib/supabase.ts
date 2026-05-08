@@ -36,6 +36,7 @@ export type SeriesImage = {
   series_id: string;
   image_url: string;
   order: number;
+  caption: string | null;
   created_at: string;
 };
 

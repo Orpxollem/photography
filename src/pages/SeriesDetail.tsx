@@ -50,11 +50,16 @@ export function SeriesDetail() {
     ? images.map(img => img.image_url)
     : series.image_url ? [series.image_url] : [];
 
+  const galleryCaptions = images.length > 0
+    ? images.map(img => img.caption)
+    : [null];
+
   return (
     <div className="min-h-screen bg-black pt-24 pb-12 max-sm:pt-16 max-sm:pb-8">
       <ImageGallery
         images={galleryImages}
         alt={series.title}
+        captions={galleryCaptions}
       />
     </div>
   );

@@ -30,27 +30,26 @@ export function Home() {
     fetchSettings();
   }, []);
 
-  const imageSrc = heroImage || 'https://images.pexels.com/photos/8434761/pexels-photo-8434761.jpeg';
-  const displayQuote = quote || 'Aside your two binocular eyes and the camera\'s monocular lens, you need a fourth eye as a photographer';
-
   const imageTranslate = scrollY * 0.35;
   const blurAmount = Math.min(scrollY / 10, 24);
-  const quoteOpacity = Math.max(1 - scrollY / 700, 0.4);
+  
 
   return (
     <div className="min-h-screen bg-black">
       <div className="relative h-[220vh] max-sm:h-[180vh]">
         <div className="sticky top-0 h-screen w-full overflow-hidden">
-          <img
-            src={imageSrc}
-            alt="Featured work"
-            className={`w-full h-full object-cover transition-opacity duration-1000 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-            style={{
-              transform: `translateY(${imageTranslate}px) scale(1.15)`,
-              filter: `blur(${blurAmount}px)`,
-            }}
-            onLoad={() => setImageLoaded(true)}
-          />
+          {heroImage && (
+            <img
+              src={heroImage}
+              alt="Featured work"
+              className={`w-full h-full object-cover transition-opacity duration-1000 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+              style={{
+                transform: `translateY(${imageTranslate}px) scale(1.15)`,
+                filter: `blur(${blurAmount}px)`,
+              }}
+              onLoad={() => setImageLoaded(true)}
+            />
+          )}
           <div
             className="absolute inset-0"
             style={{
@@ -59,16 +58,18 @@ export function Home() {
           />
         </div>
 
-        <div className="sticky top-0 h-screen flex items-center justify-center pointer-events-none">
-          <div
-            className="max-w-[94%] px-4 text-center"
-            style={{ opacity: quoteOpacity }}
-          >
-            <p className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight max-sm:text-2xl">
-              "{displayQuote}"
-            </p>
+        {quote && (
+          <div className="sticky top-0 h-screen flex items-center justify-center pointer-events-none">
+            <div
+              className="max-w-[94%] px-4 text-center"
+            >
+              <p
+                className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight max-sm:text-2xl"
+                dangerouslySetInnerHTML={{ __html: `"${quote}"` }}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

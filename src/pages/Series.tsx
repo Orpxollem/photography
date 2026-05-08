@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import { type Series as SeriesType } from '../lib/supabase';
 import * as neonApi from '../lib/neonApi';
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, '');
+}
+
 export function Series() {
   const [series, setSeries] = useState<SeriesType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,17 +39,18 @@ export function Series() {
     <div className="min-h-screen bg-black pt-32 pb-32 max-sm:pt-24">
       <div className="max-w-7xl mx-auto px-6 max-sm:px-4">
         <div className="space-y-16 max-sm:space-y-10">
-          {series.map((s) => (
+          {series.map((s, idx) => (
             <div
               key={s.id}
-              className="grid grid-cols-1 md:grid-cols-[1fr_auto_1.5fr] gap-8 md:gap-12 items-center border-b border-white/5 pb-12 last:border-0 max-sm:gap-4 max-sm:pb-8"
+              className="grid grid-cols-1 md:grid-cols-[1fr_auto_1.5fr] gap-8 md:gap-12 items-center border-b border-white/5 pb-12 last:border-0 max-sm:gap-4 max-sm:pb-8 animate-fade-slide-up"
+              style={{ animationDelay: `${idx * 0.08}s` }}
               onMouseEnter={() => setHoveredId(s.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
               {/* Title - Left Side */}
               <div className="min-w-0">
                 <Link to={`/series/${s.id}`}>
-                  <h2 className="text-4xl md:text-5xl font-light text-white leading-tight hover:text-gray-300 transition line-clamp-2 max-sm:text-3xl">
+                  <h2 className="text-4xl md:text-5xl font-light text-white leading-tight hover:text-gray-300 transition max-sm:text-3xl">
                     {s.title}
                   </h2>
                 </Link>
@@ -65,7 +70,7 @@ export function Series() {
                     to={`/series/${s.id}`}
                     className="text-lg text-gray-400 leading-relaxed hover:text-white transition line-clamp-2"
                   >
-                    {s.quote || s.description}
+                    {stripHtml(s.quote || s.description || '')}
                   </Link>
                 </div>
               </div>
@@ -76,7 +81,7 @@ export function Series() {
                   to={`/series/${s.id}`}
                   className="text-base text-gray-400 leading-relaxed hover:text-white transition line-clamp-2"
                 >
-                  {s.quote || s.description}
+                  {stripHtml(s.quote || s.description || '')}
                 </Link>
               </div>
             </div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Save, Loader2 } from 'lucide-react';
 import * as neonApi from '../../lib/neonApi';
 import { ImageUpload } from '../../components/ImageUpload';
+import { RichTextEditor } from '../../components/RichTextEditor';
 
 export function AdminAboutSettings() {
   const [image, setImage] = useState('');
@@ -60,16 +61,13 @@ export function AdminAboutSettings() {
           onChange={setImage}
         />
 
-        <div>
-          <label className="block text-sm text-gray-400 mb-2">Biography</label>
-          <textarea
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            rows={12}
-            className="w-full px-4 py-3 bg-neutral-900 border border-neutral-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-neutral-500 transition resize-none"
-            placeholder="Enter the biography text for the about page"
-          />
-        </div>
+        <RichTextEditor
+          label="Biography"
+          value={bio}
+          onChange={setBio}
+          placeholder="Enter the biography text for the about page"
+          minHeight="260px"
+        />
 
         {message && (
           <p className={`text-sm ${message.type === 'success' ? 'text-emerald-400' : 'text-red-400'}`}>
@@ -89,4 +87,3 @@ export function AdminAboutSettings() {
     </div>
   );
 }
-

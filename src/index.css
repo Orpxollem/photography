@@ -30,10 +30,43 @@
   }
 }
 
+/* Prevent white flash at scroll end and iOS overscroll */
+html, body {
+  background-color: #000;
+}
+
 /* Prevent iOS bounce scroll on fixed elements */
 body {
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Rich text editor styles */
+.rich-editor p {
+  margin-bottom: 0.75rem;
+}
+.rich-editor p:last-child {
+  margin-bottom: 0;
+}
+.rich-editor:empty::before {
+  content: attr(data-placeholder);
+  color: #6b7280;
+  pointer-events: none;
+  display: block;
+}
+
+/* Entrance animation */
+@keyframes fade-slide-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-slide-up {
+  animation: fade-slide-up 0.65s ease-out both;
+}
+
+/* More pronounced italic for em elements */
+em {
+  font-style: oblique 20deg;
 }
 
 /* Safe area for notched phones */

@@ -5,6 +5,7 @@ import type { Series as SeriesType, SeriesImage } from '../../lib/supabase';
 import { ImageUpload } from '../../components/ImageUpload';
 import { uploadImage } from '../../lib/supabase';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
+import { RichTextEditor } from '../../components/RichTextEditor';
 
 interface SeriesForm {
   title: string;
@@ -32,9 +33,36 @@ export function AdminSeries() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [newImageUrl, setNewImageUrl] = useState<Record<string, string>>({});
   const [addingImage, setAddingImage] = useState<string | null>(null);
-  
+
   // Delete confirmation state
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; type: 'series' | 'image' } | null>(null);
+
+  // Caption editing state: imageId -> current draft caption
+  const [captionDrafts, setCaptionDrafts] = useState<Record<string, string>>({});
+  const [savingCaptionId, setSavingCaptionId] = useState<string | null>(null);
+
+  const handleCaptionBlur = async (imageId: string) => {
+    const draft = captionDrafts[imageId];
+    if (draft === undefined) return; // no change
+    setSavingCaptionId(imageId);
+    try {
+      await neonApi.updateSeriesImageCaption(imageId, draft);
+      // Update local cache
+      setSeriesImages((prev) => {
+        const updated = { ...prev };
+        for (const sid of Object.keys(updated)) {
+          updated[sid] = updated[sid].map((img) =>
+            img.id === imageId ? { ...img, caption: draft || null } : img
+          );
+        }
+        return updated;
+      });
+    } catch (err) {
+      console.error('Error saving caption:', err);
+    } finally {
+      setSavingCaptionId(null);
+    }
+  };
 
   const fetchAll = async () => {
     try {
@@ -141,7 +169,7 @@ export function AdminSeries() {
   const handleAddImage = async (seriesId: string, urlOverride?: string) => {
     const url = (urlOverride || newImageUrl[seriesId])?.trim();
     if (!url) return;
-    
+
     const currentImages = seriesImages[seriesId] || [];
     if (currentImages.length >= 20) {
       alert('Maximum of 20 images allowed per series.');
@@ -252,24 +280,20 @@ export function AdminSeries() {
                   className="w-full px-4 py-2.5 bg-neutral-800 border border-neutral-600 rounded-lg text-white focus:outline-none focus:border-neutral-500 transition"
                 />
               </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-1.5">Description</label>
-                <textarea
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  rows={3}
-                  className="w-full px-4 py-2.5 bg-neutral-800 border border-neutral-600 rounded-lg text-white focus:outline-none focus:border-neutral-500 transition resize-none"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-1.5">Quote</label>
-                <textarea
-                  value={form.quote}
-                  onChange={(e) => setForm({ ...form, quote: e.target.value })}
-                  rows={2}
-                  className="w-full px-4 py-2.5 bg-neutral-800 border border-neutral-600 rounded-lg text-white focus:outline-none focus:border-neutral-500 transition resize-none"
-                />
-              </div>
+              <RichTextEditor
+                label="Description"
+                value={form.description}
+                onChange={(val) => setForm({ ...form, description: val })}
+                placeholder="Series description"
+                minHeight="80px"
+              />
+              <RichTextEditor
+                label="Quote"
+                value={form.quote}
+                onChange={(val) => setForm({ ...form, quote: val })}
+                placeholder="A quote for this series"
+                minHeight="60px"
+              />
             </div>
             <div>
               <ImageUpload
@@ -303,9 +327,9 @@ export function AdminSeries() {
               <div className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-4 min-w-0 flex-1">
                   {series.image_url && (
-                    <img 
-                      src={series.image_url} 
-                      alt="" 
+                    <img
+                      src={series.image_url}
+                      alt=""
                       className="w-12 h-12 object-cover rounded bg-neutral-800"
                     />
                   )}
@@ -378,42 +402,69 @@ export function AdminSeries() {
 
                   {/* Image list */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-sm:gap-2">
-                    {images.map((img, idx) => (
-                      <div key={img.id} className="relative group aspect-square bg-neutral-800 rounded-lg overflow-hidden border border-neutral-700">
-                        <img
-                          src={img.image_url}
-                          alt={`Image ${idx + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 focus-within:opacity-100 active:opacity-100 transition flex flex-col items-center justify-center gap-2 sm:opacity-0 sm:group-hover:opacity-100">
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => handleReorderImage(img.id, series.id, 'up')}
-                              disabled={idx === 0}
-                              className="p-1.5 bg-neutral-800 rounded-full text-white hover:bg-neutral-700 disabled:opacity-30"
-                            >
-                              <ChevronUp size={14} />
-                            </button>
-                            <button
-                              onClick={() => handleReorderImage(img.id, series.id, 'down')}
-                              disabled={idx === images.length - 1}
-                              className="p-1.5 bg-neutral-800 rounded-full text-white hover:bg-neutral-700 disabled:opacity-30"
-                            >
-                              <ChevronDown size={14} />
-                            </button>
+                    {images.map((img, idx) => {
+                      const captionValue = captionDrafts[img.id] !== undefined
+                        ? captionDrafts[img.id]
+                        : (img.caption || '');
+                      return (
+                        <div key={img.id} className="flex flex-col gap-1.5 bg-neutral-900 rounded-lg border border-neutral-700 overflow-hidden">
+                          {/* Thumbnail with hover controls */}
+                          <div className="relative group aspect-square bg-neutral-800 overflow-hidden">
+                            <img
+                              src={img.image_url}
+                              alt={`Image ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 focus-within:opacity-100 active:opacity-100 transition flex flex-col items-center justify-center gap-2 sm:opacity-0 sm:group-hover:opacity-100">
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleReorderImage(img.id, series.id, 'up')}
+                                  disabled={idx === 0}
+                                  className="p-1.5 bg-neutral-800 rounded-full text-white hover:bg-neutral-700 disabled:opacity-30"
+                                >
+                                  <ChevronUp size={14} />
+                                </button>
+                                <button
+                                  onClick={() => handleReorderImage(img.id, series.id, 'down')}
+                                  disabled={idx === images.length - 1}
+                                  className="p-1.5 bg-neutral-800 rounded-full text-white hover:bg-neutral-700 disabled:opacity-30"
+                                >
+                                  <ChevronDown size={14} />
+                                </button>
+                              </div>
+                              <button
+                                onClick={() => handleDeleteImage(img.id)}
+                                className="p-1.5 bg-red-900/80 rounded-full text-white hover:bg-red-800"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                            {/* Caption saving indicator */}
+                            {savingCaptionId === img.id && (
+                              <div className="absolute top-1 right-1">
+                                <Loader2 size={12} className="animate-spin text-white" />
+                              </div>
+                            )}
                           </div>
-                          <button
-                            onClick={() => handleDeleteImage(img.id)}
-                            className="p-1.5 bg-red-900/80 rounded-full text-white hover:bg-red-800"
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                          {/* Caption input */}
+                          <div className="px-2 pb-2">
+                            <input
+                              type="text"
+                              value={captionValue}
+                              placeholder="Caption..."
+                              onChange={(e) =>
+                                setCaptionDrafts((prev) => ({ ...prev, [img.id]: e.target.value }))
+                              }
+                              onBlur={() => handleCaptionBlur(img.id)}
+                              className="w-full px-2 py-1 bg-neutral-800 border border-neutral-700 rounded text-white text-xs placeholder-gray-600 focus:outline-none focus:border-neutral-500 transition"
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                     {images.length === 0 && (
                       <div className="col-span-full py-8 text-center border-2 border-dashed border-neutral-800 rounded-lg text-gray-600 text-sm">
                         No images in this series yet.
@@ -445,4 +496,3 @@ export function AdminSeries() {
     </div>
   );
 }
-

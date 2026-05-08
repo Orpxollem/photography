@@ -60,12 +60,21 @@ export async function deleteSeries(id: string) {
   return callNeonApi({ action: 'deleteSeries', id });
 }
 
-export async function createSeriesImage(seriesId: string, imageUrl: string, order: number) {
+export async function createSeriesImage(seriesId: string, imageUrl: string, order: number, caption?: string) {
   return callNeonApi({
     action: 'createSeriesImage',
     series_id: seriesId,
     image_url: imageUrl,
     order,
+    caption: caption || null,
+  });
+}
+
+export async function updateSeriesImageCaption(id: string, caption: string) {
+  return callNeonApi({
+    action: 'updateSeriesImageCaption',
+    id,
+    caption,
   });
 }
 

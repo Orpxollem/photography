@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, X, Loader2, Save } from 'lucide-react';
 import * as neonApi from '../../lib/neonApi';
 import type { Exhibition } from '../../lib/supabase';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
+import { RichTextEditor } from '../../components/RichTextEditor';
 
 interface ExhibitionForm {
   title: string;
@@ -183,15 +184,13 @@ export function AdminExhibitions() {
                 </select>
               </div>
             </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Description</label>
-              <textarea
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                rows={3}
-                className="w-full px-4 py-2.5 bg-neutral-800 border border-neutral-600 rounded-lg text-white focus:outline-none focus:border-neutral-500 transition resize-none"
-              />
-            </div>
+            <RichTextEditor
+              label="Description"
+              value={form.description}
+              onChange={(val) => setForm({ ...form, description: val })}
+              placeholder="Exhibition description"
+              minHeight="80px"
+            />
             <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
               <div>
                 <label className="block text-sm text-gray-400 mb-1.5">Location</label>

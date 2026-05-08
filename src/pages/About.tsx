@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import * as neonApi from '../lib/neonApi';
 
+function hasHtmlTags(str: string) {
+  return /<[a-z][\s\S]*>/i.test(str);
+}
+
 export function About() {
   const [aboutImage, setAboutImage] = useState('');
   const [aboutBio, setAboutBio] = useState('');
@@ -23,15 +27,13 @@ export function About() {
     fetchSettings();
   }, []);
 
-  const imageSrc = aboutImage || 'https://images.pexels.com/photos/5632399/pexels-photo-5632399.jpeg';
-
-  const bioParagraphs = aboutBio
-    ? aboutBio.split('\n').filter((p) => p.trim())
-    : [
-        'Joel Gyamera (b. 1999, Tema, Ghana) is a photographer whose work transforms personal memory and everyday environments into visual narratives of connection. Originally entering the creative space as a model, Joel developed a distinct sensitivity to posture and presence, qualities that inform his emotionally resonant photographic style.',
-        'He developed his narrative approach through close engagement with artists, whose dialogue and guidance helped shape his photographic language.',
-        'His work foregrounds motion, texture, and community as sites of creative inquiry. Rooted in personal experience and cultural memory, Joel\'s photography offers a poetic lens into resilience, joy, and collective identity, bridging the past and present through visual storytelling.',
-      ];
+  const renderBio = () => {
+    if (!aboutBio) return null;
+    if (hasHtmlTags(aboutBio)) {
+      return <div dangerouslySetInnerHTML={{ __html: aboutBio }} />;
+    }
+    return aboutBio.split('\n').filter((p) => p.trim()).map((p, i) => <p key={i}>{p}</p>);
+  };
 
   if (loading) {
     return (
@@ -45,14 +47,16 @@ export function About() {
     <div className="min-h-screen bg-black pt-32 pb-32 max-sm:pt-24">
       <div className="max-w-7xl mx-auto px-6 max-sm:px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 max-sm:gap-10">
-          <div className="space-y-16 max-sm:space-y-10">
-            <div>
-              <img
-                src={imageSrc}
-                alt="Joel Gyamera"
-                className="w-full max-w-sm aspect-square object-cover"
-              />
-            </div>
+          <div className="space-y-16 max-sm:space-y-10 animate-fade-slide-up" style={{ animationDelay: '0.05s' }}>
+            {aboutImage && (
+              <div>
+                <img
+                  src={aboutImage}
+                  alt="Joel Gyamera"
+                  className="w-full max-w-sm aspect-square object-cover"
+                />
+              </div>
+            )}
 
             <div>
               <h2 className="text-3xl font-light text-white mb-8 max-sm:text-2xl max-sm:mb-6">Contact</h2>
@@ -74,11 +78,9 @@ export function About() {
             </div>
           </div>
 
-          <div>
-            <div className="space-y-6 text-gray-200 text-lg leading-relaxed max-sm:text-base">
-              {bioParagraphs.map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
-              ))}
+          <div className="animate-fade-slide-up" style={{ animationDelay: '0.2s' }}>
+            <div className="space-y-6 text-gray-200 text-lg leading-relaxed max-sm:text-base [&_strong]:font-semibold [&_strong]:text-white [&_em]:italic">
+              {renderBio()}
             </div>
           </div>
         </div>

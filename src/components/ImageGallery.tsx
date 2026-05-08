@@ -4,9 +4,10 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 interface ImageGalleryProps {
   images: string[];
   alt: string;
+  captions?: (string | null)[];
 }
 
-export function ImageGallery({ images, alt }: ImageGalleryProps) {
+export function ImageGallery({ images, alt, captions }: ImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -136,7 +137,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
   return (
     <div
       ref={containerRef}
-      className="w-full h-[calc(100vh-120px)] max-sm:h-[calc(100vh-100px)] flex flex-col items-center justify-center bg-black cursor-grab active:cursor-grabbing select-none group"
+      className="w-full h-[calc(100vh-120px)] max-sm:h-[calc(100vh-100px)] flex flex-col bg-black cursor-grab active:cursor-grabbing select-none group"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -147,12 +148,12 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
       onMouseEnter={() => setShowArrows(true)}
       onMouseLeave={() => { handleMouseUp(); setShowArrows(false); }}
     >
-      <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+      {/* Image area — flex-1 so it fills all space above the caption bar */}
+      <div className="relative flex-1 overflow-hidden">
         {images.map((image, index) => {
           const isActive = index === currentIndex;
           const offset = isActive ? dragOffset : 0;
 
-          // Calculate opacity based on position
           let opacity = 0;
           if (isActive) {
             opacity = 1 - Math.abs(offset) / 500;
@@ -172,7 +173,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
               <img
                 src={image}
                 alt={`${alt} - Image ${index + 1}`}
-                className="max-h-[80vh] w-auto object-contain shadow-2xl max-w-[70vw] max-sm:max-w-[90vw]"
+                className="max-h-full w-auto object-contain shadow-2xl max-w-[70vw] max-sm:max-w-[90vw]"
                 draggable={false}
               />
             </div>
@@ -185,7 +186,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
             <button
               onClick={handlePrevious}
               onMouseDown={(e) => e.stopPropagation()}
-              className={`absolute left-4 p-3 rounded-full bg-black/20 text-white/50 hover:text-white hover:bg-black/40 transition-all duration-300 pointer-events-auto z-10 max-sm:left-2 max-sm:p-2 ${showArrows ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}
+              className={`absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/20 text-white/50 hover:text-white hover:bg-black/40 transition-all duration-300 pointer-events-auto z-10 max-sm:left-2 max-sm:p-2 ${showArrows ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}
               aria-label="Previous image"
             >
               <ChevronLeft className="w-8 h-8 max-sm:w-6 max-sm:h-6 animate-pulse-horizontal-left" />
@@ -193,7 +194,7 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
             <button
               onClick={handleNext}
               onMouseDown={(e) => e.stopPropagation()}
-              className={`absolute right-4 p-3 rounded-full bg-black/20 text-white/50 hover:text-white hover:bg-black/40 transition-all duration-300 pointer-events-auto z-10 max-sm:right-2 max-sm:p-2 ${showArrows ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}
+              className={`absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/20 text-white/50 hover:text-white hover:bg-black/40 transition-all duration-300 pointer-events-auto z-10 max-sm:right-2 max-sm:p-2 ${showArrows ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}
               aria-label="Next image"
             >
               <ChevronRight className="w-8 h-8 max-sm:w-6 max-sm:h-6 animate-pulse-horizontal-right" />
@@ -202,12 +203,19 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
         )}
       </div>
 
-      {/* Counter */}
-      {images.length > 1 && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-gray-400 text-sm max-sm:bottom-4 max-sm:text-xs pointer-events-none">
-          {currentIndex + 1} of {images.length}
-        </div>
-      )}
+      {/* Caption + Counter — genuinely below the image, never overlapping */}
+      <div className="flex flex-col items-center gap-1.5 py-4 px-6 max-sm:py-3 max-sm:px-4 min-h-[56px] max-sm:min-h-[44px] pointer-events-none">
+        {captions && captions[currentIndex] && (
+          <p className="text-gray-300 text-lg font-medium text-center leading-relaxed max-w-2xl max-sm:text-base">
+            {captions[currentIndex]}
+          </p>
+        )}
+        {images.length > 1 && (
+          <p className="text-gray-600 text-xs">
+            {currentIndex + 1} of {images.length}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
