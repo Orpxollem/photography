@@ -5,9 +5,20 @@ function hasHtmlTags(str: string) {
   return /<[a-z][\s\S]*>/i.test(str);
 }
 
+function ensureExternalLink(url: string) {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('mailto:') || url.startsWith('tel:')) {
+    return url;
+  }
+  return `https://${url}`;
+}
+
 export function About() {
   const [aboutImage, setAboutImage] = useState('');
   const [aboutBio, setAboutBio] = useState('');
+  const [instagram, setInstagram] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,6 +28,9 @@ export function About() {
         data.forEach((row: any) => {
           if (row.key === 'about_image') setAboutImage(row.value);
           if (row.key === 'about_bio') setAboutBio(row.value);
+          if (row.key === 'about_instagram') setInstagram(row.value);
+          if (row.key === 'about_email') setEmail(row.value);
+          if (row.key === 'about_phone') setPhone(row.value);
         });
       } catch (error) {
         console.error('Error fetching settings:', error);
@@ -61,19 +75,35 @@ export function About() {
             <div>
               <h2 className="text-3xl font-light text-white mb-8 max-sm:text-2xl max-sm:mb-6">Contact</h2>
               <div className="space-y-4 text-gray-300">
-                <p className="text-lg max-sm:text-base">
-                  <a
-                    href="mailto:joelgyamera@gmail.com"
-                    className="hover:text-white transition break-all"
-                  >
-                    joelgyamera@gmail.com
-                  </a>
-                </p>
-                <p className="text-lg max-sm:text-base">
-                  <a href="tel:+233594214783" className="hover:text-white transition">
-                    +233 59 4214 783
-                  </a>
-                </p>
+                {instagram && (
+                  <p className="text-lg max-sm:text-base">
+                    <a
+                      href={ensureExternalLink(instagram)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-white transition"
+                    >
+                      Instagram
+                    </a>
+                  </p>
+                )}
+                {email && (
+                  <p className="text-lg max-sm:text-base">
+                    <a
+                      href={`mailto:${email}`}
+                      className="hover:text-white transition break-all"
+                    >
+                      {email}
+                    </a>
+                  </p>
+                )}
+                {phone && (
+                  <p className="text-lg max-sm:text-base">
+                    <a href={`tel:${phone}`} className="hover:text-white transition">
+                      {phone}
+                    </a>
+                  </p>
+                )}
               </div>
             </div>
           </div>

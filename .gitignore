@@ -16,6 +16,7 @@ dist-ssr
 .idea
 .claude
 .claude/*
+.claude/worktrees/*
 .DS_Store
 *.suo
 *.ntvs*

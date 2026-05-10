@@ -7,6 +7,9 @@ import { RichTextEditor } from '../../components/RichTextEditor';
 export function AdminAboutSettings() {
   const [image, setImage] = useState('');
   const [bio, setBio] = useState('');
+  const [instagram, setInstagram] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -18,6 +21,9 @@ export function AdminAboutSettings() {
         data.forEach((row: any) => {
           if (row.key === 'about_image') setImage(row.value);
           if (row.key === 'about_bio') setBio(row.value);
+          if (row.key === 'about_instagram') setInstagram(row.value);
+          if (row.key === 'about_email') setEmail(row.value);
+          if (row.key === 'about_phone') setPhone(row.value);
         });
       } catch (error) {
         console.error('Error fetching settings:', error);
@@ -32,8 +38,13 @@ export function AdminAboutSettings() {
     setMessage(null);
 
     try {
-      await neonApi.setSetting('about_image', image);
-      await neonApi.setSetting('about_bio', bio);
+      await Promise.all([
+        neonApi.setSetting('about_image', image),
+        neonApi.setSetting('about_bio', bio),
+        neonApi.setSetting('about_instagram', instagram),
+        neonApi.setSetting('about_email', email),
+        neonApi.setSetting('about_phone', phone),
+      ]);
       setMessage({ type: 'success', text: 'About page updated successfully.' });
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to save changes.' });
@@ -60,6 +71,42 @@ export function AdminAboutSettings() {
           value={image}
           onChange={setImage}
         />
+
+        <div className="space-y-6">
+          <h3 className="text-lg font-medium text-white border-b border-white/10 pb-2">Contact Details</h3>
+          <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-400">Instagram URL</label>
+              <input
+                type="text"
+                value={instagram}
+                onChange={(e) => setInstagram(e.target.value)}
+                placeholder="https://www.instagram.com/username"
+                className="w-full px-4 py-2.5 bg-[#111] border border-white/10 rounded-lg text-white focus:outline-none focus:border-white/20 transition-colors"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-400">Email Address</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="email@example.com"
+                className="w-full px-4 py-2.5 bg-[#111] border border-white/10 rounded-lg text-white focus:outline-none focus:border-white/20 transition-colors"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-400">Phone Number</label>
+              <input
+                type="text"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+233 ..."
+                className="w-full px-4 py-2.5 bg-[#111] border border-white/10 rounded-lg text-white focus:outline-none focus:border-white/20 transition-colors"
+              />
+            </div>
+          </div>
+        </div>
 
         <RichTextEditor
           label="Biography"

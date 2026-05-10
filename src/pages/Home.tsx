@@ -63,10 +63,9 @@ export function Home() {
             <div
               className="max-w-[94%] px-4 text-center"
             >
-              <p
-                className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight max-sm:text-2xl"
-                dangerouslySetInnerHTML={{ __html: `"${quote}"` }}
-              />
+              <p className="text-4xl md:text-6xl lg:text-7xl font-bold text-white leading-tight tracking-tight max-sm:text-2xl">
+                "{quote}"
+              </p>
             </div>
           </div>
         )}
